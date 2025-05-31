@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Stratospheres.AI — ASCII Bloom</title>
+  <title>Stratospheres.AI — ASCII Gradient + Orbit</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -42,6 +42,7 @@
       position: absolute;
       top: 0;
       left: 0;
+      user-select: none;
     }
   </style>
 </head>
@@ -68,38 +69,39 @@
     animate();
 
     function init() {
-      // Scene setup
+      // Scene
       scene = new THREE.Scene();
 
+      // Camera
       camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.z = 6;
 
-      // Lighting (simulate glow with bright contrast)
-      const light = new THREE.PointLight(0xffffff, 2, 50);
-      light.position.set(10, 10, 10);
-      scene.add(light);
+      // Lighting
+      const pointLight = new THREE.PointLight(0xffffff, 2, 50);
+      pointLight.position.set(10, 10, 10);
+      scene.add(pointLight);
 
-      const ambient = new THREE.AmbientLight(0x404040);
+      const ambient = new THREE.AmbientLight(0x222222);
       scene.add(ambient);
 
-      // Object: torus knot (replace later with SVG mesh)
+      // Torus Knot Object
       const geometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 32);
       const material = new THREE.MeshPhongMaterial({
         color: 0x4b0082,
-        shininess: 100,
+        shininess: 80,
         specular: 0xffffff,
-        emissive: 0x220033
+        emissive: 0x110022,
+        flatShading: false
       });
-
       object = new THREE.Mesh(geometry, material);
       scene.add(object);
 
-      // Renderer
+      // WebGL Renderer
       renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
 
-      // ASCII Effect with full palette
+      // ASCII Effect
       effect = new AsciiEffect(renderer, ' .:-+*=%@#', { invert: true });
       effect.setSize(window.innerWidth, window.innerHeight);
       effect.domElement.style.backgroundColor = 'black';
@@ -109,8 +111,11 @@
       // Controls
       controls = new OrbitControls(camera, effect.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
+      controls.dampingFactor = 0.1;
+      controls.enablePan = false;
+      controls.enableZoom = true;
 
+      // Resize handling
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -123,7 +128,7 @@
       requestAnimationFrame(animate);
 
       object.rotation.x += 0.005;
-      object.rotation.y += 0.01;
+      object.rotation.y += 0.007;
 
       controls.update();
       effect.render(scene, camera);
