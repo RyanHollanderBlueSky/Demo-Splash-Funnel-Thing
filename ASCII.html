@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8" />
-	<title>Stratospheres.AI — ASCII Hero</title>
+	<title>Stratospheres.AI — Bloom ASCII</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style>
 		body {
@@ -10,7 +10,7 @@
 			overflow: hidden;
 			background: black;
 			color: white;
-			font-family: sans-serif;
+			font-family: monospace;
 		}
 		#hero {
 			position: absolute;
@@ -23,6 +23,28 @@
 			z-index: 10;
 			color: white;
 			mix-blend-mode: difference;
+		}
+		.ascii-gradient pre {
+			font-size: 8px;
+			line-height: 6px;
+			background: linear-gradient(
+				90deg,
+				#4b0082 0%,
+				#ff00cc 25%,
+				#ff9900 50%,
+				#00ffff 100%
+			);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			white-space: pre;
+		}
+		canvas {
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: 0;
+			filter: blur(4px) brightness(1.5);
+			pointer-events: none;
 		}
 	</style>
 </head>
@@ -40,63 +62,95 @@
 
 	<script type="module">
 		import * as THREE from 'three';
+		import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 		import { AsciiEffect } from 'three/examples/jsm/effects/AsciiEffect.js';
-		import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+		import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+		import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+		import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
-		let camera, scene, renderer, effect, torusKnot, controls;
+		let scene, camera, renderer, composer, effect;
+		let torus, controls;
 
 		init();
 		animate();
 
 		function init() {
+			// Camera
 			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
-			camera.position.set(0, 0, 6);
+			camera.position.z = 6;
 
+			// Scene
 			scene = new THREE.Scene();
 			scene.background = new THREE.Color(0x000000);
 
-			// Lighting
-			const light1 = new THREE.PointLight(0xffffff, 1.5);
-			light1.position.set(10, 10, 10);
-			scene.add(light1);
-			scene.add(new THREE.AmbientLight(0x404040));
+			// Lights
+			const light = new THREE.PointLight(0xffffff, 2);
+			light.position.set(10, 10, 10);
+			scene.add(light);
+			scene.add(new THREE.AmbientLight(0x202020));
 
-			// Torus Knot Geometry
+			// Object
 			const geometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 32);
-			const material = new THREE.MeshPhongMaterial({ color: 0x4B0082, flatShading: true });
-			torusKnot = new THREE.Mesh(geometry, material);
-			scene.add(torusKnot);
+			const material = new THREE.MeshStandardMaterial({ color: 0x4B0082, roughness: 0.4, metalness: 0.8 });
+			torus = new THREE.Mesh(geometry, material);
+			scene.add(torus);
 
-			// Renderer + ASCII
-			renderer = new THREE.WebGLRenderer();
+			// Renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
 			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.autoClear = false; // We’ll use multiple render passes
 
+			document.body.appendChild(renderer.domElement);
+
+			// Glow Pass
+			composer = new EffectComposer(renderer);
+			composer.addPass(new RenderPass(scene, camera));
+			const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+			bloomPass.threshold = 0;
+			bloomPass.strength = 1.2;
+			bloomPass.radius = 0.8;
+			composer.addPass(bloomPass);
+
+			// ASCII Effect
 			effect = new AsciiEffect(renderer, ' .:-+*=%@#', { invert: true });
 			effect.setSize(window.innerWidth, window.innerHeight);
-			effect.domElement.style.color = 'white';
 			effect.domElement.style.backgroundColor = 'black';
+			effect.domElement.classList.add('ascii-gradient');
 			document.body.appendChild(effect.domElement);
 
-			controls = new TrackballControls(camera, effect.domElement);
+			// Controls
+			controls = new OrbitControls(camera, effect.domElement);
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.05;
 
-			window.addEventListener('resize', () => {
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-				renderer.setSize(window.innerWidth, window.innerHeight);
-				effect.setSize(window.innerWidth, window.innerHeight);
-			});
+			window.addEventListener('resize', onWindowResize);
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			composer.setSize(window.innerWidth, window.innerHeight);
+			effect.setSize(window.innerWidth, window.innerHeight);
 		}
 
 		function animate() {
 			requestAnimationFrame(animate);
 
-			if (torusKnot) {
-				torusKnot.rotation.y += 0.01;
-				torusKnot.rotation.x += 0.005;
-			}
+			torus.rotation.x += 0.005;
+			torus.rotation.y += 0.01;
+
+			renderer.clear();
+
+			// Render glow scene
+			composer.render();
+
+			// Render ASCII layer
+			effect.render(scene, camera);
 
 			controls.update();
-			effect.render(scene, camera);
 		}
 	</script>
 </body>
