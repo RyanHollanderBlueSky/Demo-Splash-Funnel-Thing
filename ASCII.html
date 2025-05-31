@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Stratospheres.AI — ASCII LOGO + ZOOM</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stratospheres.AI — ASCII LOGO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
     body {
       margin: 0;
@@ -78,7 +78,7 @@
       scene.add(light2);
 
       const loader = new STLLoader();
-      loader.load('./logo.stl', (geometry) => {
+      loader.load('./Logo.stl', (geometry) => {
         const material = new THREE.MeshPhongMaterial({
           color: 0x4b0082,
           emissive: 0x220022,
@@ -101,7 +101,7 @@
       document.body.appendChild(effect.domElement);
 
       controls = new TrackballControls(camera, effect.domElement);
-      controls.noZoom = false; // 🔓 RE-ENABLE ZOOM
+      controls.noZoom = false;      // ✅ Allow zoom on logo
       controls.zoomSpeed = 1.2;
 
       window.addEventListener('resize', () => {
