@@ -56,20 +56,21 @@
 
     function init() {
       scene = new THREE.Scene();
-      scene.background = null; // ✅ Transparent background
+      scene.background = null;
 
       camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.y = 150;
       camera.position.z = 100;
 
-      const light1 = new THREE.PointLight(0xffffff, 3);
+      const light1 = new THREE.PointLight(0xffffff, 5);
       light1.position.set(500, 500, 500);
       scene.add(light1);
 
-      const light2 = new THREE.PointLight(0xffffff, 1);
+      const light2 = new THREE.PointLight(0xffffff, 3);
       light2.position.set(-500, -500, -500);
       scene.add(light2);
 
+      // Load STL Logo
       const loader = new STLLoader();
       loader.load('./Logo.stl', (geometry) => {
         geometry.center();
@@ -84,18 +85,21 @@
         scene.add(logo);
       });
 
-      renderer = new THREE.WebGLRenderer({ alpha: true }); // ✅ transparency
-      renderer.setClearColor(0x000000, 0); // ✅ transparent clear color
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setClearColor(0x000000, 0); // transparent
       renderer.setSize(window.innerWidth, window.innerHeight);
 
+      // ASCII Effect
       effect = new AsciiEffect(renderer, ' .:-+*=%@#', { invert: true });
       effect.setSize(window.innerWidth, window.innerHeight);
       effect.domElement.style.color = 'white';
-      effect.domElement.style.backgroundColor = 'transparent'; // ✅
+      effect.domElement.style.backgroundColor = 'transparent';
       effect.domElement.classList.add('ascii-gradient');
 
       document.body.appendChild(effect.domElement);
 
+      // Controls
       controls = new TrackballControls(camera, effect.domElement);
       controls.noZoom = false;
       controls.zoomSpeed = 1.2;
