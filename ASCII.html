@@ -82,16 +82,18 @@
 
       const loader = new STLLoader();
       loader.load('./Logo.stl', (geometry) => {
-        const material = new THREE.MeshPhongMaterial({
-          color: 0xffffff,
-          flatShading: true
-        });
+  geometry.center(); // 
 
-        logo = new THREE.Mesh(geometry, material);
-        logo.scale.set(0.14, 0.14, 0.14);
-        logo.rotation.set(0, 0, 0);
-        scene.add(logo);
-      });
+  const material = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    flatShading: true
+  });
+
+  logo = new THREE.Mesh(geometry, material);
+  logo.scale.set(0.14, 0.14, 0.14); 
+  logo.rotation.set(0, 0, 0);
+  scene.add(logo);
+});
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
