@@ -5,25 +5,21 @@
   <title>Stratospheres.AI — ASCII LOGO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
-    body {
-      margin: 0;
-      background: black;
-      font-family: monospace;
-      touch-action: none;
-      overscroll-behavior: none;
-    }
+   body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+  font-family: monospace;
+  touch-action: none;
+  overscroll-behavior: none;
+  width: 100vw;
+  height: 100vh;
+}
 
-    #hero {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      font-size: 18px;
-      font-weight: 600;
-      text-transform: uppercase;
-      z-index: 10;
-      color: white;
-      mix-blend-mode: difference;
-    }
+    html, body {
+  width: 100%;
+  height: 100%;
+}
 
     .ascii-gradient {
       font-size: 6px;
@@ -41,8 +37,6 @@
   </style>
 </head>
 <body>
-  <div id="hero">Stratospheres.AI — Automating Impact</div>
-
   <script type="importmap">
     {
       "imports": {
