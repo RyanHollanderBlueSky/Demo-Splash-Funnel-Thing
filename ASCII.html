@@ -5,21 +5,17 @@
   <title>Stratospheres.AI — ASCII LOGO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
-   body {
-  margin: 0;
-  overflow: hidden;
-  background: black;
-  font-family: monospace;
-  touch-action: none;
-  overscroll-behavior: none;
-  width: 100vw;
-  height: 100vh;
-}
-
     html, body {
-  width: 100%;
-  height: 100%;
-}
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: monospace;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
 
     .ascii-gradient {
       font-size: 6px;
@@ -60,42 +56,42 @@
 
     function init() {
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
+      scene.background = null; // ✅ Transparent background
 
       camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.y = 150;
       camera.position.z = 100;
 
-      const light1 = new THREE.PointLight(0xffffff, 3, 0, 0);
+      const light1 = new THREE.PointLight(0xffffff, 3);
       light1.position.set(500, 500, 500);
       scene.add(light1);
 
-      const light2 = new THREE.PointLight(0xffffff, 1, 0, 0);
+      const light2 = new THREE.PointLight(0xffffff, 1);
       light2.position.set(-500, -500, -500);
       scene.add(light2);
 
       const loader = new STLLoader();
       loader.load('./Logo.stl', (geometry) => {
-  geometry.center(); // 
+        geometry.center();
+        const material = new THREE.MeshPhongMaterial({
+          color: 0xffffff,
+          flatShading: true
+        });
 
-  const material = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    flatShading: true
-  });
+        logo = new THREE.Mesh(geometry, material);
+        logo.scale.set(0.14, 0.14, 0.14);
+        logo.rotation.set(0, 0, 0);
+        scene.add(logo);
+      });
 
-  logo = new THREE.Mesh(geometry, material);
-  logo.scale.set(0.14, 0.14, 0.14); 
-  logo.rotation.set(0, 0, 0);
-  scene.add(logo);
-});
-
-      renderer = new THREE.WebGLRenderer();
+      renderer = new THREE.WebGLRenderer({ alpha: true }); // ✅ transparency
+      renderer.setClearColor(0x000000, 0); // ✅ transparent clear color
       renderer.setSize(window.innerWidth, window.innerHeight);
 
       effect = new AsciiEffect(renderer, ' .:-+*=%@#', { invert: true });
       effect.setSize(window.innerWidth, window.innerHeight);
       effect.domElement.style.color = 'white';
-      effect.domElement.style.backgroundColor = 'black';
+      effect.domElement.style.backgroundColor = 'transparent'; // ✅
       effect.domElement.classList.add('ascii-gradient');
 
       document.body.appendChild(effect.domElement);
