@@ -1,157 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<title>Stratospheres.AI — Bloom ASCII</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style>
-		body {
-			margin: 0;
-			overflow: hidden;
-			background: black;
-			color: white;
-			font-family: monospace;
-		}
-		#hero {
-			position: absolute;
-			top: 30px;
-			left: 30px;
-			font-size: 22px;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 1px;
-			z-index: 10;
-			color: white;
-			mix-blend-mode: difference;
-		}
-		.ascii-gradient pre {
-			font-size: 8px;
-			line-height: 6px;
-			background: linear-gradient(
-				90deg,
-				#4b0082 0%,
-				#ff00cc 25%,
-				#ff9900 50%,
-				#00ffff 100%
-			);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-			white-space: pre;
-		}
-		canvas {
-			position: absolute;
-			top: 0;
-			left: 0;
-			z-index: 0;
-			filter: blur(4px) brightness(1.5);
-			pointer-events: none;
-		}
-	</style>
+  <meta charset="UTF-8" />
+  <title>Stratospheres.AI — ASCII Bloom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      font-family: monospace;
+    }
+
+    #hero {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      font-size: 22px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 10;
+      color: white;
+      mix-blend-mode: difference;
+    }
+
+    .ascii-gradient {
+      font-size: 8px;
+      line-height: 6px;
+      background: linear-gradient(
+        90deg,
+        #4b0082,
+        #ff00cc,
+        #ff9900,
+        #00ffff
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: pre;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
 </head>
 <body>
-	<div id="hero">Stratospheres.AI — Automating Impact</div>
+  <div id="hero">Stratospheres.AI — Automating Impact</div>
 
-	<script type="importmap">
-		{
-			"imports": {
-				"three": "https://unpkg.com/three@0.158.0/build/three.module.js",
-				"three/examples/jsm/": "https://unpkg.com/three@0.158.0/examples/jsm/"
-			}
-		}
-	</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+        "three/examples/jsm/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+      }
+    }
+  </script>
 
-	<script type="module">
-		import * as THREE from 'three';
-		import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-		import { AsciiEffect } from 'three/examples/jsm/effects/AsciiEffect.js';
-		import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-		import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-		import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+    import { AsciiEffect } from 'three/examples/jsm/effects/AsciiEffect.js';
 
-		let scene, camera, renderer, composer, effect;
-		let torus, controls;
+    let camera, scene, renderer, effect, object, controls;
 
-		init();
-		animate();
+    init();
+    animate();
 
-		function init() {
-			// Camera
-			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
-			camera.position.z = 6;
+    function init() {
+      // Scene setup
+      scene = new THREE.Scene();
 
-			// Scene
-			scene = new THREE.Scene();
-			scene.background = new THREE.Color(0x000000);
+      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = 6;
 
-			// Lights
-			const light = new THREE.PointLight(0xffffff, 2);
-			light.position.set(10, 10, 10);
-			scene.add(light);
-			scene.add(new THREE.AmbientLight(0x202020));
+      // Lighting (simulate glow with bright contrast)
+      const light = new THREE.PointLight(0xffffff, 2, 50);
+      light.position.set(10, 10, 10);
+      scene.add(light);
 
-			// Object
-			const geometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 32);
-			const material = new THREE.MeshStandardMaterial({ color: 0x4B0082, roughness: 0.4, metalness: 0.8 });
-			torus = new THREE.Mesh(geometry, material);
-			scene.add(torus);
+      const ambient = new THREE.AmbientLight(0x404040);
+      scene.add(ambient);
 
-			// Renderer
-			renderer = new THREE.WebGLRenderer({ antialias: true });
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			renderer.setPixelRatio(window.devicePixelRatio);
-			renderer.autoClear = false; // We’ll use multiple render passes
+      // Object: torus knot (replace later with SVG mesh)
+      const geometry = new THREE.TorusKnotGeometry(1, 0.3, 128, 32);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x4b0082,
+        shininess: 100,
+        specular: 0xffffff,
+        emissive: 0x220033
+      });
 
-			document.body.appendChild(renderer.domElement);
+      object = new THREE.Mesh(geometry, material);
+      scene.add(object);
 
-			// Glow Pass
-			composer = new EffectComposer(renderer);
-			composer.addPass(new RenderPass(scene, camera));
-			const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-			bloomPass.threshold = 0;
-			bloomPass.strength = 1.2;
-			bloomPass.radius = 0.8;
-			composer.addPass(bloomPass);
+      // Renderer
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
 
-			// ASCII Effect
-			effect = new AsciiEffect(renderer, ' .:-+*=%@#', { invert: true });
-			effect.setSize(window.innerWidth, window.innerHeight);
-			effect.domElement.style.backgroundColor = 'black';
-			effect.domElement.classList.add('ascii-gradient');
-			document.body.appendChild(effect.domElement);
+      // ASCII Effect with full palette
+      effect = new AsciiEffect(renderer, ' .:-+*=%@#', { invert: true });
+      effect.setSize(window.innerWidth, window.innerHeight);
+      effect.domElement.style.backgroundColor = 'black';
+      effect.domElement.classList.add('ascii-gradient');
+      document.body.appendChild(effect.domElement);
 
-			// Controls
-			controls = new OrbitControls(camera, effect.domElement);
-			controls.enableDamping = true;
-			controls.dampingFactor = 0.05;
+      // Controls
+      controls = new OrbitControls(camera, effect.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
 
-			window.addEventListener('resize', onWindowResize);
-		}
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        effect.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
 
-		function onWindowResize() {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
+    function animate() {
+      requestAnimationFrame(animate);
 
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			composer.setSize(window.innerWidth, window.innerHeight);
-			effect.setSize(window.innerWidth, window.innerHeight);
-		}
+      object.rotation.x += 0.005;
+      object.rotation.y += 0.01;
 
-		function animate() {
-			requestAnimationFrame(animate);
-
-			torus.rotation.x += 0.005;
-			torus.rotation.y += 0.01;
-
-			renderer.clear();
-
-			// Render glow scene
-			composer.render();
-
-			// Render ASCII layer
-			effect.render(scene, camera);
-
-			controls.update();
-		}
-	</script>
+      controls.update();
+      effect.render(scene, camera);
+    }
+  </script>
 </body>
 </html>
