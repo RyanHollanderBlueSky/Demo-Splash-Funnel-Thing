@@ -35,18 +35,14 @@ body {
   position: relative;
   background: transparent;
 }
-#threeContainer,
-#gridOverlayImg {
+#threeContainer, #gridOverlayImg {
   position: absolute;
   left: 0; top: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
 }
 #threeContainer { pointer-events: auto; z-index: 1; }
-#gridOverlayImg {
-  z-index: 2;
-  pointer-events: none;
-  object-fit: cover;
-  opacity: 0.6; /* adjust grid visibility as needed */
-}
+#gridOverlayImg { z-index: 2; pointer-events: none; object-fit: cover; }
 @media (max-width: 1100px) {
   .container { flex-direction: column; }
   .info-panel { width: 100%; min-height: 220px; }
@@ -63,11 +59,12 @@ body {
     </div>
     <div class="threejs-canvas-wrapper" id="canvasWrap">
       <div id="threeContainer"></div>
-      <img id="gridOverlayImg" src="Empty Grid Asset@2x.png" alt="Grid Overlay"/>
+      <img id="gridOverlayImg" src="grid.png" alt="Grid Overlay"/>
     </div>
   </div>
   <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
   <script>
+    // Barebones Three.js funnel, upside-down, no borders
     (function(){
       let wrapper = document.getElementById('canvasWrap');
       let threeContainer = document.getElementById('threeContainer');
@@ -124,6 +121,7 @@ body {
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+        // grid image will automatically stretch by CSS
       }
       window.addEventListener('resize', resize);
       setTimeout(resize, 100);
