@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,21 +5,36 @@
   <title>Stratospheres.AI — ASCII LOGO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
-   body {
-  margin: 0;
-  overflow: hidden;
-  background: #191919;
-  font-family: monospace;
-  touch-action: none;
-  overscroll-behavior: none;
-  width: 100vw;
-  height: 100vh;
-}
-
     html, body {
-  width: 100%;
-  height: 100%;
-}
+      margin: 0;
+      overflow: hidden;
+      background: #191919;
+      font-family: monospace;
+      touch-action: none;
+      overscroll-behavior: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ascii-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .ascii-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255, 0, 204, 0.2), transparent 60%);
+      filter: blur(60px);
+      z-index: 0;
+      mix-blend-mode: color-dodge;
+      pointer-events: none;
+    }
 
     .ascii-gradient {
       font-size: 6px;
@@ -34,10 +48,13 @@
       top: 0;
       left: 0;
       user-select: none;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
+  <div class="ascii-wrapper" id="ascii-container"></div>
+
   <script type="importmap">
     {
       "imports": {
@@ -77,18 +94,18 @@
 
       const loader = new STLLoader();
       loader.load('./Logo.stl', (geometry) => {
-  geometry.center(); // 
+        geometry.center();
 
-  const material = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    flatShading: true
-  });
+        const material = new THREE.MeshPhongMaterial({
+          color: 0xffffff,
+          flatShading: true
+        });
 
-  logo = new THREE.Mesh(geometry, material);
-  logo.scale.set(0.14, 0.14, 0.14); 
-  logo.rotation.set(0, 0, 0);
-  scene.add(logo);
-});
+        logo = new THREE.Mesh(geometry, material);
+        logo.scale.set(0.14, 0.14, 0.14);
+        logo.rotation.set(0, 0, 0);
+        scene.add(logo);
+      });
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -99,7 +116,7 @@
       effect.domElement.style.backgroundColor = 'transparent';
       effect.domElement.classList.add('ascii-gradient');
 
-      document.body.appendChild(effect.domElement);
+      document.getElementById('ascii-container').appendChild(effect.domElement);
 
       controls = new TrackballControls(camera, effect.domElement);
       controls.noZoom = false;
