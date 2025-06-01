@@ -8,7 +8,7 @@
    body {
   margin: 0;
   overflow: hidden;
-  background: rgb(19,19,19);
+  background: #191919;
   font-family: monospace;
   touch-action: none;
   overscroll-behavior: none;
@@ -118,7 +118,6 @@
       if (logo) {
         const timer = Date.now() - start;
         logo.rotation.y = timer * 0.0003;
-        logo.rotation.x = timer * 0.0000;
       }
 
       controls.update();
