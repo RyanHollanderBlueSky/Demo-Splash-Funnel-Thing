@@ -118,6 +118,7 @@
       if (logo) {
         const timer = Date.now() - start;
         logo.rotation.z = timer * 0.0003;
+        logo.rotation.y = timer * 0.0001;
       }
 
       controls.update();
