@@ -5,29 +5,55 @@
   <title>Stratospheres.AI — ASCII LOGO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
-    body, html {
+    html, body {
       margin: 0;
-      padding: 0;
       overflow: hidden;
       background: #191919;
       font-family: monospace;
+      touch-action: none;
+      overscroll-behavior: none;
       width: 100%;
       height: 100%;
     }
 
-    .ascii-layer {
+    .ascii-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .ascii-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255, 0, 204, 0.2), transparent 40%);
+      filter: blur(40px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ascii-gradient {
       font-size: 6px;
       line-height: 6px;
+      background: linear-gradient(90deg, #4b0082, #ff00cc, #ff9900, #00ffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       white-space: pre;
+      pointer-events: none;
       position: absolute;
       top: 0;
       left: 0;
       user-select: none;
-      pointer-events: none;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
+  <div class="ascii-wrapper" id="ascii-container"></div>
+
   <script type="importmap">
     {
       "imports": {
@@ -51,16 +77,17 @@
 
     function init() {
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x191919);
+      scene.background = new THREE.Color(0x000000);
 
       camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-      camera.position.set(0, 50, 120);
+      camera.position.y = 50;
+      camera.position.z = 100;
 
-      const light1 = new THREE.PointLight(0xffffff, 3);
+      const light1 = new THREE.PointLight(0xffffff, 3, 0, 0);
       light1.position.set(500, 500, 500);
       scene.add(light1);
 
-      const light2 = new THREE.PointLight(0xffffff, 1);
+      const light2 = new THREE.PointLight(0xffffff, 1, 0, 0);
       light2.position.set(-500, -500, -500);
       scene.add(light2);
 
@@ -68,7 +95,6 @@
       loader.load('./Logo.stl', (geometry) => {
         geometry.center();
 
-        // Main mesh
         const material = new THREE.MeshPhongMaterial({
           color: 0xffffff,
           flatShading: true
@@ -76,19 +102,8 @@
 
         logo = new THREE.Mesh(geometry, material);
         logo.scale.set(0.14, 0.14, 0.14);
+        logo.rotation.set(0, 0, 0);
         scene.add(logo);
-
-        // Subtle lime glow mesh
-        const glowMaterial = new THREE.MeshBasicMaterial({
-          color: 0x99ff99,
-          transparent: true,
-          opacity: 0.08,
-          depthWrite: false
-        });
-
-        const glow = new THREE.Mesh(geometry.clone(), glowMaterial);
-        glow.scale.set(0.16, 0.16, 0.16);
-        scene.add(glow);
       });
 
       renderer = new THREE.WebGLRenderer();
@@ -98,17 +113,13 @@
       effect.setSize(window.innerWidth, window.innerHeight);
       effect.domElement.style.color = 'white';
       effect.domElement.style.backgroundColor = 'transparent';
-      effect.domElement.classList.add('ascii-layer');
-      document.body.appendChild(effect.domElement);
+      effect.domElement.classList.add('ascii-gradient');
+
+      document.getElementById('ascii-container').appendChild(effect.domElement);
 
       controls = new TrackballControls(camera, effect.domElement);
       controls.noZoom = false;
       controls.zoomSpeed = 1.2;
-
-      // On scroll, zoom camera in/out
-      window.addEventListener('wheel', (event) => {
-        camera.position.z += event.deltaY * 0.05;
-      });
 
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
