@@ -29,10 +29,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at center, rgba(255, 0, 204, 0.2), transparent 60%);
-      filter: blur(60px);
+      background: radial-gradient(circle at center, rgba(173, 255, 47, 0.12), transparent 60%);
+      filter: blur(30px);
       z-index: 0;
-      mix-blend-mode: color-dodge;
       pointer-events: none;
     }
 
@@ -95,7 +94,6 @@
       const loader = new STLLoader();
       loader.load('./Logo.stl', (geometry) => {
         geometry.center();
-
         const material = new THREE.MeshPhongMaterial({
           color: 0xffffff,
           flatShading: true
@@ -122,26 +120,40 @@
       controls.noZoom = false;
       controls.zoomSpeed = 1.2;
 
+      // Handle Resize
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         effect.setSize(window.innerWidth, window.innerHeight);
       });
+
+      // Scroll Zoom Behavior
+      window.addEventListener('wheel', (e) => {
+        camera.position.z += e.deltaY * 0.01;
+      });
+
+      // Click Bounce Behavior
+      window.addEventListener('click', () => {
+        if (!logo) return;
+        const startScale = logo.scale.clone();
+        const targetScale = startScale.clone().multiplyScalar(1.1);
+        let bounceProgress = 0;
+
+        function bounce() {
+          bounceProgress += 0.05;
+          const scaleFactor = 1 + 0.1 * Math.sin(bounceProgress * Math.PI * 2);
+          logo.scale.set(
+            startScale.x * scaleFactor,
+            startScale.y * scaleFactor,
+            startScale.z * scaleFactor
+          );
+          if (bounceProgress < 1) requestAnimationFrame(bounce);
+          else logo.scale.copy(startScale);
+        }
+
+        bounce();
+      });
     }
 
     function animate() {
-      requestAnimationFrame(animate);
-
-      if (logo) {
-        const timer = Date.now() - start;
-        logo.rotation.z = timer * 0.0003;
-        logo.rotation.y = timer * 0.0001;
-      }
-
-      controls.update();
-      effect.render(scene, camera);
-    }
-  </script>
-</body>
-</html>
